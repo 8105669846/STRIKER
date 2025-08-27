@@ -5,6 +5,12 @@ const firebaseConfig = {
     storageBucket: "YOUR_STORAGE_BUCKET",
     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
     appId: "YOUR_APP_ID"
+   apiKey: "AIzaSyCDvfrPIcYO2B0YyGLqSgoALR68S8vFTrM",
+   authDomain: "striker-e07d7.firebaseapp.com",
+   projectId: "striker-e07d7",
+   storageBucket: "striker-e07d7.firebasestorage.app",
+   messagingSenderId: "220201380562",
+   appId: "1:220201380562:web:eaf560b5fd6e54ab779b0b"
   };
   
   // Initialize Firebase
