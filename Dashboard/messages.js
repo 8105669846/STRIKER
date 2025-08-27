@@ -2,13 +2,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCAjGLm5Qk2di9_1nc9zKRYUCxsP8melvI",
-  authDomain: "striker-police-dashboard.firebaseapp.com",
-  projectId: "striker-police-dashboard",
-  storageBucket: "striker-police-dashboard.firebasestorage.app",
-  messagingSenderId: "534590523839",
-  appId: "1:534590523839:web:861fb206f474b3b2bff90a"
+  apiKey: "AIzaSyCDvfrPIcYO2B0YyGLqSgoALR68S8vFTrM",
+  authDomain: "striker-e07d7.firebaseapp.com",
+  projectId: "striker-e07d7",
+  storageBucket: "striker-e07d7.firebasestorage.app",
+  messagingSenderId: "220201380562",
+  appId: "1:220201380562:web:eaf560b5fd6e54ab779b0b"
 };
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);

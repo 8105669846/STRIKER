@@ -3,13 +3,14 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from
 
 // Firebase Config
 const firebaseConfig = {
-    apiKey: "AIzaSyCAjGLm5Qk2di9_1nc9zKRYUCxsP8melvI",
-    authDomain: "striker-police-dashboard.firebaseapp.com",
-    projectId: "striker-police-dashboard",
-    storageBucket: "striker-police-dashboard.firebasestorage.app",
-    messagingSenderId: "534590523839",
-    appId: "1:534590523839:web:861fb206f474b3b2bff90a"
-  };
+  apiKey: "AIzaSyCDvfrPIcYO2B0YyGLqSgoALR68S8vFTrM",
+  authDomain: "striker-e07d7.firebaseapp.com",
+  projectId: "striker-e07d7",
+  storageBucket: "striker-e07d7.firebasestorage.app",
+  messagingSenderId: "220201380562",
+  appId: "1:220201380562:web:eaf560b5fd6e54ab779b0b"
+};
+
 
 // Initializing Firebase
 const app = initializeApp(firebaseConfig);
