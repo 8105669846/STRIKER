@@ -299,12 +299,7 @@
        function applyGoogleTranslation(langCode) {
          if (langCode === 'en') {
            // Reset to English - reload page to remove translation
-           if (window.showNotification) {
-             window.showNotification('Language changed to English', 'success');
-           }
-           setTimeout(() => {
-             window.location.reload();
-           }, 500);
+           window.location.reload();
          } else {
            // Use Google Translate for other languages
            setTimeout(() => {
@@ -312,7 +307,6 @@
              if (selectElement) {
                selectElement.value = langCode;
                selectElement.dispatchEvent(new Event('change'));
-               console.log(`Translating to ${langCode}`);
              } else {
                // If Google Translate is not ready, try again
                setTimeout(() => {
@@ -320,13 +314,10 @@
                  if (selectElement) {
                    selectElement.value = langCode;
                    selectElement.dispatchEvent(new Event('change'));
-                   console.log(`Retry: Translating to ${langCode}`);
-                 } else {
-                   console.log('Google Translate element not found');
                  }
-               }, 2000);
+               }, 1000);
              }
-           }, 500);
+           }, 100);
            
            if (window.showNotification) {
              window.showNotification(`Language changed to ${langName}`, 'success');
@@ -366,22 +357,12 @@
        // Google Translate callback
        function googleTranslateElementInit() {
          console.log('Google Translate initialized');
-         try {
-           new google.translate.TranslateElement({
-             pageLanguage: 'en',
-             includedLanguages: 'hi,kn',
-             layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-             autoDisplay: false,
-             multilanguagePage: true
-           }, 'google_translate_element');
-           
-           // Wait for Google Translate to be ready
-           setTimeout(() => {
-             console.log('Google Translate ready');
-           }, 1000);
-         } catch (error) {
-           console.error('Google Translate initialization error:', error);
-         }
+         new google.translate.TranslateElement({
+           pageLanguage: 'en',
+           includedLanguages: 'hi,kn',
+           layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+           autoDisplay: false
+         }, 'google_translate_element');
        }
      </script>
    </body>
