@@ -1,6 +1,7 @@
 const firebaseConfig = {
    apiKey: "AIzaSyCDvfrPIcYO2B0YyGLqSgoALR68S8vFTrM",
    authDomain: "striker-e07d7.firebaseapp.com",
+   databaseURL: "https://striker-e07d7-default-rtdb.asia-southeast1.firebasedatabase.app",
    projectId: "striker-e07d7",
    storageBucket: "striker-e07d7.firebasestorage.app",
    messagingSenderId: "220201380562",
@@ -12,87 +13,7 @@ const firebaseConfig = {
   const db = firebase.firestore();
   
   // Global variables
-  let alerts = [];
   let messages = [];
-  
-  // Function to display alerts
-  function displayAlerts() {
-    const alertsList = document.getElementById('alerts-list');
-    if (!alertsList) return;
-  
-    alertsList.innerHTML = alerts.map(alert => `
-      <div class="alert-item" data-id="${alert.id}">
-        <div class="alert-icon ${alert.type}">
-          <i class="fas ${alert.type === 'critical' ? 'fa-exclamation' : alert.type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info'}"></i>
-        </div>
-        <div class="alert-content">
-          <div class="alert-title">${alert.title}</div>
-          <div class="alert-description">${alert.description}</div>
-          <div class="alert-time">${alert.time}</div>
-          <div class="alert-location">
-            <i class="fas fa-map-marker-alt"></i>
-            <span>${alert.location}</span>
-          </div>
-        </div>
-        <button class="respond-btn" onclick="showResponse(${JSON.stringify(alert).replace(/"/g, '&quot;')})">
-          <i class="fas fa-reply"></i>
-          Respond
-        </button>
-        <button class="resolve-btn" onclick="resolveAlert('${alert.id}')">
-          <i class="fas fa-check"></i>
-          Mark as Resolved
-        </button>
-      </div>
-    `).join('');
-  
-    // Update total alerts count
-    document.getElementById('total-alerts').textContent = `${alerts.length} new alerts`;
-  }
-  
-  // Function to resolve an alert
-  function resolveAlert(alertId) {
-    db.collection('alerts').doc(alertId).update({
-      status: 'resolved',
-      resolvedAt: new Date()
-    })
-    .then(() => {
-      showNotification('Alert marked as resolved', 'success');
-    })
-    .catch(error => {
-      showNotification('Error resolving alert', 'error');
-      console.error('Error resolving alert:', error);
-    });
-  }
-  
-  // Real-time alert listener
-  function setupAlertListener() {
-    db.collection('alerts')
-      .where('status', '==', 'active')
-      .orderBy('timestamp', 'desc')
-      .onSnapshot(snapshot => {
-        snapshot.docChanges().forEach(change => {
-          if (change.type === 'added') {
-            const alert = {
-              id: change.doc.id,
-              ...change.doc.data()
-            };
-            alerts.unshift(alert);
-            showNotification(`New alert: ${alert.title}`, 'info');
-          } else if (change.type === 'modified') {
-            const index = alerts.findIndex(a => a.id === change.doc.id);
-            if (index !== -1) {
-              alerts[index] = {
-                id: change.doc.id,
-                ...change.doc.data()
-              };
-            }
-          } else if (change.type === 'removed') {
-            alerts = alerts.filter(a => a.id !== change.doc.id);
-          }
-        });
-        displayAlerts();
-      });
-  }
   
   // Function to show response modal
   function showResponse(item) {
@@ -161,6 +82,6 @@ const firebaseConfig = {
   
   // Initialize
   document.addEventListener('DOMContentLoaded', () => {
-    setupAlertListener();
-    showSection('dashboard');
+    // showSection function is defined in script.js, so we don't need to call it here
+    console.log('Dashboard initialized');
   }); 
