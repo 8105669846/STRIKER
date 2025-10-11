@@ -65,6 +65,8 @@ import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, up
       // Sound alert functionality
       let lastAlertCount = 0;
       let soundEnabled = true;
+      let isInitialLoad = true;
+      let processedAlertIds = new Set();
 
       // Create audio context for sound alerts
       let audioContext;
@@ -74,54 +76,67 @@ import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, up
         }
       }
 
-      // Function to play SOS alert sound
+      // Function to play loud siren sound
       function playSOSAlertSound() {
         if (!soundEnabled) return;
         
         try {
           initAudioContext();
           
-          // Create a beep sound for SOS alert
-          const oscillator = audioContext.createOscillator();
+          // Create a loud siren sound
+          const oscillator1 = audioContext.createOscillator();
+          const oscillator2 = audioContext.createOscillator();
           const gainNode = audioContext.createGain();
+          const filter = audioContext.createBiquadFilter();
           
-          oscillator.connect(gainNode);
-          gainNode.connect(audioContext.destination);
+          // Connect the audio nodes
+          oscillator1.connect(gainNode);
+          oscillator2.connect(gainNode);
+          gainNode.connect(filter);
+          filter.connect(audioContext.destination);
           
-          // SOS pattern: ... --- ... (3 short, 3 long, 3 short)
-          const sosPattern = [
-            { freq: 800, duration: 0.1 }, // S
-            { freq: 800, duration: 0.1 }, // S
-            { freq: 800, duration: 0.1 }, // S
-            { freq: 0, duration: 0.1 },   // pause
-            { freq: 800, duration: 0.3 }, // O
-            { freq: 800, duration: 0.3 }, // O
-            { freq: 800, duration: 0.3 }, // O
-            { freq: 0, duration: 0.1 },   // pause
-            { freq: 800, duration: 0.1 }, // S
-            { freq: 800, duration: 0.1 }, // S
-            { freq: 800, duration: 0.1 }  // S
-          ];
+          // Set up the siren effect
+          oscillator1.type = 'sawtooth';
+          oscillator2.type = 'sawtooth';
           
-          let currentTime = audioContext.currentTime;
+          // Create a sweeping siren effect
+          const startTime = audioContext.currentTime;
+          const duration = 3.0; // 3 seconds of siren
           
-          sosPattern.forEach((note, index) => {
-            if (note.freq > 0) {
-              const osc = audioContext.createOscillator();
-              const gain = audioContext.createGain();
-              
-              osc.connect(gain);
-              gain.connect(audioContext.destination);
-              
-              osc.frequency.setValueAtTime(note.freq, currentTime);
-              gain.gain.setValueAtTime(0.3, currentTime);
-              gain.gain.exponentialRampToValueAtTime(0.01, currentTime + note.duration);
-              
-              osc.start(currentTime);
-              osc.stop(currentTime + note.duration);
-            }
-            currentTime += note.duration;
-          });
+          // Oscillator 1: High frequency sweep
+          oscillator1.frequency.setValueAtTime(800, startTime);
+          oscillator1.frequency.linearRampToValueAtTime(1200, startTime + 0.5);
+          oscillator1.frequency.linearRampToValueAtTime(800, startTime + 1.0);
+          oscillator1.frequency.linearRampToValueAtTime(1200, startTime + 1.5);
+          oscillator1.frequency.linearRampToValueAtTime(800, startTime + 2.0);
+          oscillator1.frequency.linearRampToValueAtTime(1200, startTime + 2.5);
+          oscillator1.frequency.linearRampToValueAtTime(800, startTime + 3.0);
+          
+          // Oscillator 2: Low frequency sweep (creates the siren effect)
+          oscillator2.frequency.setValueAtTime(400, startTime);
+          oscillator2.frequency.linearRampToValueAtTime(600, startTime + 0.5);
+          oscillator2.frequency.linearRampToValueAtTime(400, startTime + 1.0);
+          oscillator2.frequency.linearRampToValueAtTime(600, startTime + 1.5);
+          oscillator2.frequency.linearRampToValueAtTime(400, startTime + 2.0);
+          oscillator2.frequency.linearRampToValueAtTime(600, startTime + 2.5);
+          oscillator2.frequency.linearRampToValueAtTime(400, startTime + 3.0);
+          
+          // Set up filter for siren effect
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(2000, startTime);
+          filter.Q.setValueAtTime(1, startTime);
+          
+          // Set up gain for loud siren
+          gainNode.gain.setValueAtTime(0, startTime);
+          gainNode.gain.linearRampToValueAtTime(0.8, startTime + 0.1); // Loud volume
+          gainNode.gain.setValueAtTime(0.8, startTime + 2.9);
+          gainNode.gain.linearRampToValueAtTime(0, startTime + 3.0);
+          
+          // Start the oscillators
+          oscillator1.start(startTime);
+          oscillator1.stop(startTime + duration);
+          oscillator2.start(startTime);
+          oscillator2.stop(startTime + duration);
           
         } catch (error) {
           console.log('Audio not supported or blocked:', error);
@@ -172,6 +187,16 @@ import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, up
           );
         }
         return soundEnabled;
+      };
+
+      // Function to test siren sound (for testing purposes)
+      window.testSirenSound = function() {
+        console.log('Testing siren sound...');
+        playSOSAlertSound();
+        showSoundAlertIndicator();
+        if (window.showNotification) {
+          window.showNotification('Testing siren sound', 'info');
+        }
       };
 
 // Make markAlertAsHandled function globally available
@@ -323,19 +348,30 @@ window.markAlertAsHandled = async function(alertId) {
         `).join('');
   }
  
-        // Check for new alerts and trigger sound
-        if (alerts.length > lastAlertCount) {
-          console.log(`New alert detected! Playing SOS sound...`);
-          playSOSAlertSound();
-          showSoundAlertIndicator();
+        // Check for genuinely new alerts (not on initial load)
+        if (!isInitialLoad) {
+          // Check for new alert IDs that we haven't processed before
+          const newAlerts = alerts.filter(alert => !processedAlertIds.has(alert.id));
           
-          // Show notification for new alert
-          if (window.showNotification && alerts.length > 0) {
-            const latestAlert = alerts[alerts.length - 1];
-            window.showNotification(`New SOS Alert from ${latestAlert.name}`, 'error');
+          if (newAlerts.length > 0) {
+            console.log(`New alert(s) detected! Playing SOS sound...`);
+            playSOSAlertSound();
+            showSoundAlertIndicator();
+            
+            // Show notification for new alert
+            if (window.showNotification) {
+              const latestAlert = newAlerts[newAlerts.length - 1];
+              window.showNotification(`New SOS Alert from ${latestAlert.name}`, 'error');
+            }
+            
+            // Add new alert IDs to processed set
+            newAlerts.forEach(alert => processedAlertIds.add(alert.id));
           }
+        } else {
+          // On initial load, just add all existing alert IDs to processed set
+          alerts.forEach(alert => processedAlertIds.add(alert.id));
+          isInitialLoad = false;
         }
-        lastAlertCount = alerts.length;
 
         // Update dashboard counters
   document.getElementById("total-triggers").textContent = alerts.length + handledAlerts.length;
