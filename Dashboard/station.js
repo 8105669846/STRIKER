@@ -35,7 +35,9 @@ function showUploadModal() {
   }
 
   // Add event listener for file upload
-  document.getElementById('upload-form').addEventListener('submit', async (e) => {
+  const uploadForm = document.getElementById('upload-form');
+  if (uploadForm) {
+    uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const file = document.getElementById('officer-file').files[0];
     if (!file) return;
@@ -59,6 +61,7 @@ function showUploadModal() {
       status.classList.add('error');
     }
   });
+  }
 
   // Add click handler for upload option in sidebar
   document.querySelector('.sidebar ul li:nth-child(2)').addEventListener('click', showUploadModal);
