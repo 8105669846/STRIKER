@@ -5,6 +5,7 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from
 const firebaseConfig = {
   apiKey: "AIzaSyCDvfrPIcYO2B0YyGLqSgoALR68S8vFTrM",
   authDomain: "striker-e07d7.firebaseapp.com",
+  databaseURL: "https://striker-e07d7-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "striker-e07d7",
   storageBucket: "striker-e07d7.firebasestorage.app",
   messagingSenderId: "220201380562",
@@ -28,7 +29,10 @@ window.logout = function () {
 //Displays previously logged-in user's email
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    document.getElementById("officer-email").innerText = user.email;
+    const officerEmailElement = document.getElementById("officer-email");
+    if (officerEmailElement) {
+      officerEmailElement.innerText = user.email;
+    }
   } else {
     window.location.href = "login.html"; // Redirect if not logged in
   }
