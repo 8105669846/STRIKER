@@ -4,6 +4,7 @@ import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy } f
 const firebaseConfig = {
   apiKey: "AIzaSyCDvfrPIcYO2B0YyGLqSgoALR68S8vFTrM",
   authDomain: "striker-e07d7.firebaseapp.com",
+  databaseURL: "https://striker-e07d7-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "striker-e07d7",
   storageBucket: "striker-e07d7.firebasestorage.app",
   messagingSenderId: "220201380562",
