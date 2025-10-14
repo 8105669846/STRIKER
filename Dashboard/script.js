@@ -447,6 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get all the necessary containers
     const dashboardContent = document.getElementById('dashboard-content');
     const messagesContainer = document.getElementById('messages-container');
+    const handledAlertsContainer = document.getElementById('handled-alerts-container');
     const alertsContainer = document.getElementById('alerts-container');
     const settingsContainer = document.getElementById('settings-container');
 
@@ -455,6 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Hide all sections except dashboard initially
     messagesContainer.style.display = 'none';
+    handledAlertsContainer.style.display = 'none';
     alertsContainer.style.display = 'none';
     settingsContainer.style.display = 'none';
 
@@ -470,6 +472,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Hide all containers first
             dashboardContent.style.display = 'none';
             messagesContainer.style.display = 'none';
+            handledAlertsContainer.style.display = 'none';
             alertsContainer.style.display = 'none';
             settingsContainer.style.display = 'none';
 
@@ -482,6 +485,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
                 case 'messages':
                     messagesContainer.style.display = 'block';
+                    break;
+                case 'handled alerts':
+                    handledAlertsContainer.style.display = 'block';
                     break;
                 case 'alerts':
                     alertsContainer.style.display = 'block';
