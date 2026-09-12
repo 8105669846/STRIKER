@@ -1,0 +1,76 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+#define WIFI_SSID "YourWiFiName"
+#define WIFI_PASSWORD "YourWiFiPassword"
+#define SOS_BUTTON_PIN 25   // Connected with external 10k pull-up to 3.3V
+
+const char* FIRESTORE_URL = "https://firestore.googleapis.com/v1/projects/striker-e07d7/databases/(default)/documents/sos_collection?key=AIzaSyCDvfrPIcYO2B0YyGLqSgoALR68S8vFTrM";
+
+bool sosSent = false;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(SOS_BUTTON_PIN, INPUT);  // using external pull-up resistor
+  delay(1000);
+
+  Serial.println("Connecting to WiFi...");
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println("\n✅ WiFi Connected!");
+  Serial.println("System Ready — Press SOS button to send alert.");
+}
+
+void sendSOSAlert(double lat, double lng) {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+
+    String jsonData = "{"
+                      "\"fields\": {"
+                        "\"name\": {\"stringValue\": \"Simba Kamble\"},"
+                        "\"email\": {\"stringValue\": \"simba@example.com\"},"
+                        "\"latitude\": {\"doubleValue\": " + String(lat, 6) + "},"
+                        "\"longitude\": {\"doubleValue\": " + String(lng, 6) + "},"
+                        "\"status\": {\"stringValue\": \"active\"},"
+                        "\"timestamp\": {\"integerValue\": " + String(millis()) + "}"
+                      "}"
+                    "}";
+
+    Serial.println("\n🚨 SOS Button Pressed! Sending alert...");
+    http.begin(FIRESTORE_URL);
+    http.addHeader("Content-Type", "application/json");
+    int code = http.POST(jsonData);
+    String payload = http.getString();
+    http.end();
+
+    if (code > 0) {
+      Serial.println("✅ Firestore Response Code: " + String(code));
+      Serial.println("📦 Payload: " + payload);
+    } else {
+      Serial.println("❌ Failed to send SOS: " + String(code));
+    }
+  } else {
+    Serial.println("⚠ WiFi not connected");
+  }
+}
+
+void loop() {
+  int buttonState = digitalRead(SOS_BUTTON_PIN);
+  Serial.println(buttonState);  // Debug to check logic state
+  delay(100);
+
+  if (buttonState == LOW && !sosSent) {
+    sosSent = true;
+    double lat = 15.364708;
+    double lng = 75.123955;
+    sendSOSAlert(lat, lng);
+    delay(1000);
+  }
+
+  if (buttonState == HIGH) {
+    sosSent = false;
+  }
+}
